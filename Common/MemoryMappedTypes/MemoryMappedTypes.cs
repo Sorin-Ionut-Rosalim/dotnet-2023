@@ -130,3 +130,32 @@ public struct MapFeature
     [FieldOffset(21)] public int PropertiesOffset;
     [FieldOffset(25)] public int PropertyCount;
 }
+
+[Flags]
+public enum FeatureType : byte
+{
+    UNKNOWN       = 0b0000_0000,
+    WATERWAY      = 0b0000_0001,
+    PLACE_NAME    = 0b0000_0010,
+    RAILWAY       = 0b0000_0011,
+    BORDER        = 0b0000_0100,
+    BUILDING      = 0b0000_0101,
+
+    HIGHWAY       = 0b0000_1000,
+    H_MOTORWAY    = 0b0000_1001,
+    H_TRUNK       = 0b0000_1010,
+    H_PRIMARY     = 0b0000_1011,
+    H_SECONDARY   = 0b0000_1100,
+    H_TERTIARY    = 0b0000_1101,
+    H_RESIDENTIAL = 0b0000_1110,
+
+    LANDUSE       = 0b0010_0000,
+    L_NATURAL     = 0b0010_0001,
+    L_FOREST      = 0b0010_0010,
+    L_PLAIN       = 0b0010_0011,
+    L_HILLS       = 0b0010_0100,
+    L_MOUNTAINS   = 0b0010_0101,
+    L_DESERT      = 0b0010_0011,
+    L_WATER       = 0b0010_0111,
+    L_RESIDENTIAL = 0b0011_0111
+}
