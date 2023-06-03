@@ -25,6 +25,7 @@ public readonly ref struct MapFeatureData
     public ReadOnlySpan<char> Label { get; init; }
     public ReadOnlySpan<Coordinate> Coordinates { get; init; }
     public Dictionary<string, string> Properties { get; init; }
+    public FeatureType FeatureType { get; init; }
 }
 
 /// <summary>
@@ -142,6 +143,109 @@ public unsafe class DataFile : IDisposable
         GetString(stringsOffset, charsOffset, i + 1, out value);
     }
 
+    public static FeatureType classifyFeature(IDictionary<string, string> properties, GeometryType geometryType)
+    {
+        if (properties.Any(p => p.Key == "highway"))
+        {
+            switch (properties["highway"])
+            {
+                case "motorway":
+                    return FeatureType.H_MOTORWAY;
+                case "trunk":
+                    return FeatureType.H_TRUNK;
+                case "primary":
+                    return FeatureType.H_PRIMARY;
+                case "secondary":
+                    return FeatureType.H_SECONDARY;
+                case "tertiary":
+                    return FeatureType.H_TERTIARY;
+                case "residential":
+                    return FeatureType.H_RESIDENTIAL;
+                case "living_street":
+                    return FeatureType.H_RESIDENTIAL;
+                default:
+                    return FeatureType.UNKNOWN;
+            }
+        }
+        else if (properties.Any(p => p.Key.StartsWith("water")) && geometryType != GeometryType.Point)
+        {
+            return FeatureType.WATERWAY;
+        }
+        else if (properties.Any(p => p.Key == "railway"))
+        {
+            return FeatureType.RAILWAY;
+        }
+        else if (properties.Any(p => p.Key.StartsWith("boundary") && p.Value.StartsWith("administrative") && properties.Any(p => p.Key.StartsWith("admin_level") && p.Value == "2")))
+        {
+            return FeatureType.BORDER;
+        }
+        // else if (geometryType != GeometryType.Point && properties.Any(p => p.Key.StartsWith("place") && new List<string> { "city", "town", "locality", "hamlet" }.Contains(p.Value)))
+        // {
+        //     return FeatureType.PLACE_NAME;
+        // }
+        else if (properties.Any(p => p.Key.StartsWith("boundary") && p.Value.StartsWith("forest")))
+        {
+            return FeatureType.L_FOREST;
+        }
+        else if (properties.Any(p => p.Key.StartsWith("landuse") && (p.Value.StartsWith("forest") || p.Value.StartsWith("orchard"))))
+        {
+            return FeatureType.L_FOREST;
+        }
+        else if (geometryType == GeometryType.Polygon && properties.Any(p => p.Key.StartsWith("landuse")) &&
+            new List<string> { "residential", "cemetery", "industrial", "commercial", "square", "construction", "military", "quarry", "brownfield" }.Contains(properties["landuse"]))
+        {
+            return FeatureType.L_RESIDENTIAL;
+        }
+        else if (geometryType == GeometryType.Polygon && properties.Any(p => p.Key.StartsWith("landuse")) &&
+            new List<string> { "farm", "meadow", "grass", "greenfield", "recreation_ground", "winter_sports", "allotments" }.Contains(properties["landuse"]))
+        {
+            return FeatureType.L_PLAIN;
+        }
+        else if (geometryType == GeometryType.Polygon && properties.Any(p => p.Key.StartsWith("landuse")) &&
+            new List<string> { "reservoir", "basin" }.Contains(properties["landuse"]))
+        {
+            return FeatureType.L_WATER;
+        }
+        else if (geometryType == GeometryType.Polygon && properties.Any(p => p.Key.StartsWith("building")))
+        {
+            return FeatureType.L_RESIDENTIAL;
+        }
+        else if (geometryType == GeometryType.Polygon && properties.Any(p => p.Key.StartsWith("leisure")))
+        {
+            return FeatureType.L_RESIDENTIAL;
+        }
+        else if (geometryType == GeometryType.Polygon && properties.Any(p => p.Key.StartsWith("amenity")))
+        {
+            return FeatureType.L_RESIDENTIAL;
+        }
+        else if (geometryType == GeometryType.Polygon && properties.Any(p => p.Key.StartsWith("natural")))
+        {
+            if (new List<string> { "fell", "grassland", "heath", "moor", "scrub", "wetland" }.Contains(properties["natural"]))
+            {
+                return FeatureType.L_PLAIN;
+            }
+            else if (new List<string> { "wood", "tree_row" }.Contains(properties["natural"]))
+            {
+                return FeatureType.L_FOREST;
+            }
+            else if (new List<string> { "bare_rock", "rock", "scree" }.Contains(properties["natural"]))
+            {
+                return FeatureType.L_MOUNTAINS;
+            }
+            else if (new List<string> { "sand", "beach" }.Contains(properties["natural"]))
+            {
+                return FeatureType.L_DESERT;
+            }
+            else if (properties["natural"] == "water")
+            {
+                return FeatureType.L_WATER;
+            }
+            else return FeatureType.L_NATURAL;
+        }
+
+        return FeatureType.UNKNOWN;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public void ForeachFeature(BoundingBox b, MapFeatureDelegate? action)
     {
@@ -189,13 +293,13 @@ public unsafe class DataFile : IDisposable
                     }
 
                     if (!action(new MapFeatureData
-                        {
-                            Id = feature->Id,
-                            Label = label,
-                            Coordinates = coordinates,
-                            Type = feature->GeometryType,
-                            Properties = properties
-                        }))
+                    {
+                        Id = feature->Id,
+                        Label = label,
+                        Coordinates = coordinates,
+                        Type = feature->GeometryType,
+                        FeatureType = classifyFeature(properties, feature->GeometryType)
+                    }))
                     {
                         break;
                     }
