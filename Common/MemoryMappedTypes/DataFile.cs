@@ -298,6 +298,7 @@ public unsafe class DataFile : IDisposable
                         Label = label,
                         Coordinates = coordinates,
                         Type = feature->GeometryType,
+                        // Properties = properties, Decoment for PLACE_NAME
                         FeatureType = classifyFeature(properties, feature->GeometryType)
                     }))
                     {

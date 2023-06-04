@@ -136,7 +136,7 @@ public enum FeatureType : int
 {
     UNKNOWN = 0000_0000,
     WATERWAY = 0000_0001,
-    PLACE_NAME = 0000_0010,
+    // PLACE_NAME = 0000_0010,
     RAILWAY = 0b0000_0011,
     BORDER = 0000_0100,
     BUILDING = 0000_0101,

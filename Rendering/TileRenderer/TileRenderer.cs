@@ -21,6 +21,7 @@ public static class TileRenderer
             baseShape = road;
             shapes.Enqueue(road, road.ZIndex);
         }
+        // PLACE_NAME interferes with other features
         // else if ((featureType & FeatureType.PLACE_NAME) != 0)
         // {
         //     var coordinates = feature.Coordinates;
