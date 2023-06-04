@@ -14,12 +14,12 @@ public static class TileRenderer
 
         var featureType = feature.FeatureType;
 
-        if ((featureType & FeatureType.WATERWAY) != 0)
+        if ((int)featureType >= 1000 && (int)featureType <= 1110)
         {
             var coordinates = feature.Coordinates;
-            var waterway = new Waterway(coordinates, feature.Type == GeometryType.Polygon);
-            baseShape = waterway;
-            shapes.Enqueue(waterway, waterway.ZIndex);
+            var road = new Road(coordinates);
+            baseShape = road;
+            shapes.Enqueue(road, road.ZIndex);
         }
         // else if ((featureType & FeatureType.PLACE_NAME) != 0)
         // {
@@ -28,88 +28,87 @@ public static class TileRenderer
         //     baseShape = popPlace;
         //     shapes.Enqueue(popPlace, popPlace.ZIndex);
         // }
-        else if ((featureType & FeatureType.HIGHWAY) != 0)
+        else if (featureType == FeatureType.WATERWAY)
         {
             var coordinates = feature.Coordinates;
-            var road = new Road(coordinates);
-            baseShape = road;
-            shapes.Enqueue(road, road.ZIndex);
+            var waterway = new Waterway(coordinates, feature.Type == GeometryType.Polygon);
+            baseShape = waterway;
+            shapes.Enqueue(waterway, waterway.ZIndex);
         }
-        else if ((featureType & FeatureType.BORDER) != 0)
+        else if (featureType == FeatureType.BORDER)
         {
             var coordinates = feature.Coordinates;
             var border = new Border(coordinates);
             baseShape = border;
             shapes.Enqueue(border, border.ZIndex);
         }
-        else if ((featureType & FeatureType.RAILWAY) != 0)
+        else if (featureType == FeatureType.RAILWAY)
         {
             var coordinates = feature.Coordinates;
             var railway = new Railway(coordinates);
             baseShape = railway;
             shapes.Enqueue(railway, railway.ZIndex);
         }
-        else if ((featureType & FeatureType.L_FOREST) != 0)
+        else if (featureType == FeatureType.L_FOREST)
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Forest);
             baseShape = geoFeature;
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
-        else if ((featureType & FeatureType.L_PLAIN) != 0)
+        else if (featureType == FeatureType.L_PLAIN)
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Plain);
             baseShape = geoFeature;
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
-        else if ((featureType & FeatureType.L_HILLS) != 0)
+        else if (featureType == FeatureType.L_HILLS)
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Hills);
             baseShape = geoFeature;
             shapes.Enqueue(geoFeature, geoFeature.ZIndex); ;
         }
-        else if ((featureType & FeatureType.L_MOUNTAINS) != 0)
+        else if (featureType == FeatureType.L_MOUNTAINS)
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Mountains);
             baseShape = geoFeature;
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
-        else if ((featureType & FeatureType.L_DESERT) != 0)
+        else if (featureType == FeatureType.L_DESERT)
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Desert);
             baseShape = geoFeature;
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
-        else if ((featureType & FeatureType.L_WATER) != 0)
+        else if (featureType == FeatureType.L_WATER)
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Water);
             baseShape = geoFeature;
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
-        else if ((featureType & FeatureType.L_RESIDENTIAL) != 0)
+        else if (featureType == FeatureType.L_RESIDENTIAL)
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Residential);
             baseShape = geoFeature;
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
-
-        else if ((featureType & FeatureType.BUILDING) != 0)
+        else if (featureType == FeatureType.BUILDING)
         {
             var coordinates = feature.Coordinates;
             var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Residential);
             baseShape = geoFeature;
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
-        else if (((featureType & FeatureType.LANDUSE) != 0))
+        else if (featureType == FeatureType.LANDUSE)
         {
             var coordinates = feature.Coordinates;
-            var geoFeature = new GeoFeature(coordinates, feature);
+            var geoFeature = new GeoFeature(coordinates, GeoFeature.GeoFeatureType.Residential);
             baseShape = geoFeature;
             shapes.Enqueue(geoFeature, geoFeature.ZIndex);
         }
